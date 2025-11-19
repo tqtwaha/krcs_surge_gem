@@ -1,0 +1,40 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+<div class="py-5">
+    <h3>🚀 Open Opportunities in {{ context.volunteer.branch }}</h3>
+    <hr>
+    {% if context.no_profile %}
+        <div class="alert alert-warning">No Volunteer Profile found.</div>
+    {% elif not context.projects %}
+        <div class="alert alert-info">No open opportunities.</div>
+    {% else %}
+        <div class="row">
+            {% for project in context.projects %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ project.project_name }}</h5>
+                        <span class="badge badge-primary">{{ project.company }}</span>
+                        <p class="card-text">{{ project.description }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-outline-danger btn-apply" data-project="{{ project.name }}">Apply Now</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+<script>
+    frappe.ready(function() {
+        $('.btn-apply').on('click', function() {
+            frappe.call({
+                method: 'krcs_surge.api.apply_for_project',
+                args: { project: $(this).data('project') },
+                callback: function(r) { if (!r.exc) frappe.msgprint('Applied!'); }
+            });
+        });
+    });
+</script>
+{% endblock %}
